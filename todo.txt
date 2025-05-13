@@ -1,0 +1,9 @@
+Išskaidyti į multifile structructure
+
+
+Prideti darbuotojo darboviete(imone) CRUD
+one to many
+
+
+Prideti darbuotojo pareigas CRUD 
+many to many
