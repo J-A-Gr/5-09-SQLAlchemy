@@ -8,8 +8,8 @@ from models.duties import Pareigos
 
 engine = create_engine("mysql://root:915276MySQL@localhost:3306/0509sqlalchemy_classwork", echo=True)
 
-def create_database():
-    Base.metadata.create_all(engine)
+# def create_database():
+#     Base.metadata.create_all(engine)  # nebereikia nes alembic naudojam
 
 
 def get_session():

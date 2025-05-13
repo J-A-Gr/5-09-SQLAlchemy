@@ -1,40 +1,83 @@
-from services.employee_service import add_darbuotojas, view_darbuotojai, update_darbuotojas, delete_darbuotojas, prideti_darboviete, prideti_pareigas
-from database import get_session
+from services.employee_service import (
+    get_all_employees,
+    create_employee,
+    update_employee_salary,
+    delete_employee
+)
+from services.company_service import get_all_companies
+from services.duties_service import get_all_duties
+from datetime import date
+from tabulate import tabulate
 
+def add_employee_view(session):
+    try:
+        darbovietes = get_all_companies(session)
+        pareigos_list = get_all_duties(session)
 
-def main_menu():  # CLI (Command line interface)
-    while True:
-        print("\n--- DARBUOTOJŲ VALDYMAS ---")
-        print("1. Pridėti darbovietę")
-        print("2. Pridėti pareigas")
-        print("3. Pridėti darbuotoją")
-        print("4. Peržiūrėti visus")
-        print("5. Atnaujinti darbuotoją")
-        print("6. Ištrinti darbuotoją")
-        print("0. Išeiti")
-        choice = input("Pasirinkite: ")
+        if not darbovietes:
+            print("Nėra darboviečių. Pirmiausia pridėkite bent vieną.")
+            return
+        if not pareigos_list:
+            print("Nėra pareigų. Pirmiausia pridėkite bent vienas.")
+            return
 
-        with get_session() as session:
-            if choice == "1":
-                prideti_darboviete(session)
-                input()
-            elif choice == "2":
-                prideti_pareigas(session)
-                input()
-            elif choice == "3":
-                add_darbuotojas(session)
-                input()
-            elif choice == "4":
-                view_darbuotojai(session)
-                input()
-            elif choice == "5":
-                update_darbuotojas(session)
-                input()
-            elif choice == "6":
-                delete_darbuotojas(session)
-                input()
-            elif choice == "0":
-                print("Command line interface pabaiga...")
-                break
-            else:
-                print("Neteisingas pasirinkimas.")
+        print("\nGalimos darbovietės:")
+        for d in darbovietes:
+            print(f"{d.id}: {d.pavadinimas}, {d.miestas}")
+        darboviete_id = int(input("Pasirinkite darbovietės ID: "))
+
+        vardas = input("Vardas: ") or None
+        pavarde = input("Pavardė: ") or None
+        gimimo_data_str = input("Gimimo data (YYYY-MM-DD): ") or None
+        gimimo_data = date.fromisoformat(gimimo_data_str) if gimimo_data_str else None
+        atlyginimas_input = input("Atlyginimas: ")
+        atlyginimas = int(atlyginimas_input) if atlyginimas_input else None
+
+        print("\nGalimos pareigos:")
+        for p in pareigos_list:
+            print(f"{p.id}: {p.pavadinimas} - {p.aprasymas or 'Nėra aprašymo'}")
+        pareigos_id = int(input("Pasirinkite pareigų ID: "))
+
+        darbuotojas = create_employee(session, vardas, pavarde, gimimo_data, atlyginimas, darboviete_id, pareigos_id)
+        print(f"Darbuotojas pridėtas: {darbuotojas.vardas} {darbuotojas.pavarde}")
+
+    except Exception as e:
+        print(str(e))
+
+def view_employees_view(session):
+    try:
+        darbuotojai = get_all_employees(session)
+        table = [
+            [
+                d.id,
+                d.vardas,
+                d.pavarde,
+                d.gimimo_data,
+                d.atlyginimas or "—",
+                d.darboviete_id,
+                d.nuo_kada_dirba.strftime('%Y-%m-%d %H:%M')
+            ]
+            for d in darbuotojai
+        ]
+        headers = ["ID", "Vardas", "Pavardė", "Gimimo data", "Atlyginimas", "Darbovietės ID", "Dirba nuo"]
+        print(tabulate(table, headers=headers, tablefmt="fancy_grid"))
+
+    except Exception as e:
+        print(f"Klaida rodant darbuotojus: {str(e)}")
+
+def update_employee_view(session):
+    try:
+        id = int(input("Įveskite darbuotojo ID: "))
+        new_salary = int(input("Naujas atlyginimas: "))
+        darbuotojas = update_employee_salary(session, id, new_salary)
+        print(f"Atlyginimas atnaujintas: {darbuotojas.vardas} {darbuotojas.pavarde}")
+    except Exception as e:
+        print(str(e))
+
+def delete_employee_view(session):
+    try:
+        id = int(input("Įveskite darbuotojo ID, kurį norite ištrinti: "))
+        delete_employee(session, id)
+        print("Darbuotojas ištrintas.")
+    except Exception as e:
+        print(str(e))

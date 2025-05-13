@@ -4,6 +4,7 @@ from models.base import Base
 
 
 
+
 employee_duties = Table(
     "darbuotojo_pareigos",
     Base.metadata,
