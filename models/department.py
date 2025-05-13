@@ -2,8 +2,6 @@ from models.base import Base
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 
-
-
 class Departamentas(Base):
     __tablename__ = "departamentai"
     id = Column(Integer, primary_key=True, autoincrement=True)

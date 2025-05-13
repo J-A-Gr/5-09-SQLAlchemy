@@ -5,14 +5,16 @@ from sqlalchemy.exc import IntegrityError
 def get_all_employees(session):
     return session.query(Darbuotojas).all()
 
-def create_employee(session, vardas, pavarde, gimimo_data, atlyginimas, darboviete_id, pareigos_id):
+def create_employee(session, vardas, pavarde, asmens_kodas, gimimo_data, atlyginimas, darboviete_id, departamentas_id, pareigos_id):
     try:
         darbuotojas = Darbuotojas(
             vardas=vardas,
             pavarde=pavarde,
+            asmens_kodas=asmens_kodas,
             gimimo_data=gimimo_data,
             atlyginimas=atlyginimas,
-            darboviete_id=darboviete_id
+            darboviete_id=darboviete_id,
+            departamentas_id=departamentas_id
         )
         pareigos = session.get(Pareigos, pareigos_id)
         darbuotojas.duties.append(pareigos)

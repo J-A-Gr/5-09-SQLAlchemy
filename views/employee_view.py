@@ -6,6 +6,7 @@ from services.employee_service import (
 )
 from services.company_service import get_all_companies
 from services.duties_service import get_all_duties
+from services.departament_service import get_all_departments
 from datetime import date
 from tabulate import tabulate
 
@@ -28,6 +29,7 @@ def add_employee_view(session):
 
         vardas = input("Vardas: ") or None
         pavarde = input("Pavardė: ") or None
+        asmens_kodas = int(input("Asmens kodas: "))
         gimimo_data_str = input("Gimimo data (YYYY-MM-DD): ") or None
         gimimo_data = date.fromisoformat(gimimo_data_str) if gimimo_data_str else None
         atlyginimas_input = input("Atlyginimas: ")
@@ -38,7 +40,18 @@ def add_employee_view(session):
             print(f"{p.id}: {p.pavadinimas} - {p.aprasymas or 'Nėra aprašymo'}")
         pareigos_id = int(input("Pasirinkite pareigų ID: "))
 
-        darbuotojas = create_employee(session, vardas, pavarde, gimimo_data, atlyginimas, darboviete_id, pareigos_id)
+        departamentai = get_all_departments(session)
+        if not departamentai:
+            print("Nėra departamentų. Pirmiausia pridėkite bent vieną.")
+            return
+
+        print("\nGalimi departamentai:")
+        for dep in departamentai:
+            print(f"{dep.id}: {dep.pavadinimas}")
+        departamentas_id = int(input("Pasirinkite departamento ID: "))
+
+
+        darbuotojas = create_employee(session, vardas, pavarde, asmens_kodas, gimimo_data, atlyginimas, darboviete_id, departamentas_id, pareigos_id)
         print(f"Darbuotojas pridėtas: {darbuotojas.vardas} {darbuotojas.pavarde}")
 
     except Exception as e:
@@ -52,14 +65,16 @@ def view_employees_view(session):
                 d.id,
                 d.vardas,
                 d.pavarde,
+                d.asmens_kodas,
                 d.gimimo_data,
                 d.atlyginimas or "—",
                 d.darboviete_id,
+                d.departamentas_id,
                 d.nuo_kada_dirba.strftime('%Y-%m-%d %H:%M')
             ]
             for d in darbuotojai
         ]
-        headers = ["ID", "Vardas", "Pavardė", "Gimimo data", "Atlyginimas", "Darbovietės ID", "Dirba nuo"]
+        headers = ["ID", "Vardas", "Pavardė","Asmens kodas", "Gimimo data", "Atlyginimas", "Darbovietės ID", "Departamentas ID", "Dirba nuo"]
         print(tabulate(table, headers=headers, tablefmt="fancy_grid"))
 
     except Exception as e:

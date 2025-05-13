@@ -12,7 +12,7 @@ class Darbuotojas(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     vardas = Column(String(50))
     pavarde = Column(String(50))
-    asmenskodas = Column(Integer, unique=True, nullable=True)
+    asmens_kodas = Column(String(13), unique=True, nullable=True)
     gimimo_data = Column(Date)
     atlyginimas = Column(Integer)
     
